@@ -5,14 +5,14 @@ public class Usuario
     private String nombre;
     private String rut;
     private int edad;
-    private String areaInteres;
+    private String tematicaInteres;
 
-    public Usuario(String no, String ru, int ed, String arIn)
+    public Usuario(String no, String ru, int ed, String teIn)
     {
         nombre = no;
         rut = ru;
         edad = ed;
-        areaInteres = arIn;
+        tematicaInteres = teIn;
     }
 
     // Getters y Setters
@@ -25,6 +25,6 @@ public class Usuario
     public int getEdad() { return edad; }
     public void setEdad(int ed) { edad = ed; }
 
-    public String getAreaInteres() { return areaInteres; }
-    public void setAreaInteres(String arIn) { areaInteres = arIn; }
+    public String getAreaInteres() { return tematicaInteres; }
+    public void setAreaInteres(String teIn) { tematicaInteres = teIn; }
 }
