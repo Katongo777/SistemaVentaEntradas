@@ -4,10 +4,10 @@ public class Charla extends Evento
 {
     private String expositorPrincipal;
 
-    public Charla(String codigo, String nombre, String tematica, String expositorPrincipal)
+    public Charla(String codigo, String nombre, String tematica, String exPo, Ubicacion zona)
     {
-        super(codigo, nombre, tematica);
-        this.expositorPrincipal = expositorPrincipal;
+        super(codigo, nombre, tematica, zona);
+        expositorPrincipal = exPo;
     }
 
     // Sobreescritura de método
@@ -18,5 +18,5 @@ public class Charla extends Evento
     }
 
     public String getExpositorPrincipal() { return expositorPrincipal; }
-    public void setExpositorPrincipal(String expositorPrincipal) { this.expositorPrincipal = expositorPrincipal; }
+    public void setExpositorPrincipal(String exPo) { expositorPrincipal = exPo; }
 }

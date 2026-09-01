@@ -4,10 +4,10 @@ public class Seminario extends Evento
 {
     private int duracionDias;
 
-    public Seminario(String codigo, String nombre, String tematica, int duracionDias)
+    public Seminario(String codigo, String nombre, String tematica, int duDi, Ubicacion zona)
     {
-        super(codigo, nombre, tematica);
-        this.duracionDias = duracionDias;
+        super(codigo, nombre, tematica, zona);
+        duracionDias = duDi;
     }
 
     // Sobreescritura de método
@@ -19,5 +19,5 @@ public class Seminario extends Evento
 
     // Getters y Setters
     public int getDuracionDias() { return duracionDias; }
-    public void setDuracionDias(int duracionDias) { this.duracionDias = duracionDias; }
+    public void setDuracionDias(int duDi) { duracionDias = duDi; }
 }

@@ -7,12 +7,12 @@ public class Ubicacion
     private int asientosVendidos;
     private double precioBase;
 
-    public Ubicacion(String nombreZona, int capacidadMaxima, double precioBase)
+    public Ubicacion(String noZo, int caMa, double prBa)
     {
-        this.nombreZona = nombreZona;
-        this.capacidadMaxima = capacidadMaxima;
-        this.precioBase = precioBase;
-        this.asientosVendidos = 0;
+        nombreZona = noZo;
+        capacidadMaxima = caMa;
+        precioBase = prBa;
+        asientosVendidos = 0;
     }
 
     public boolean hayStock()
@@ -22,14 +22,14 @@ public class Ubicacion
 
     // Getters y Setters
     public String getNombreZona() { return nombreZona; }
-    public void setNombreZona(String nombreZona) { this.nombreZona = nombreZona; }
+    public void setNombreZona(String noZo) { nombreZona = noZo; }
 
     public int getCapacidadMaxima() { return capacidadMaxima; }
-    public void setCapacidadMaxima(int capacidadMaxima) { this.capacidadMaxima = capacidadMaxima; }
+    public void setCapacidadMaxima(int caMa) { capacidadMaxima = caMa; }
 
     public int getAsientosVendidos() { return asientosVendidos; }
-    public void setAsientosVendidos(int asientosVendidos) { this.asientosVendidos = asientosVendidos; }
+    public void setAsientosVendidos(int asVe) { asientosVendidos = asVe; }
 
     public double getPrecioBase() { return precioBase; }
-    public void setPrecioBase(double precioBase) { this.precioBase = precioBase; }
+    public void setPrecioBase(double prBa) { precioBase = prBa; }
 }

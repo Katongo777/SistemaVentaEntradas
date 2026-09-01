@@ -1,40 +1,32 @@
 package modelo;
 
-import java.util.ArrayList;
-
 public abstract class Evento
 {
     private String codigo;
     private String nombre;
     private String tematica;
-    // Colección anidada
-    private ArrayList<Ubicacion> zonas;
+    private Ubicacion zona;
 
-    public Evento(String codigo, String nombre, String tematica)
+    public Evento(String co, String no, String te, Ubicacion zo)
     {
-        this.codigo = codigo;
-        this.nombre = nombre;
-        this.tematica = tematica;
-        this.zonas = new ArrayList<>();
-    }
-
-    public void agregarUbicacion(Ubicacion u)
-    {
-        this.zonas.add(u);
+        codigo = co;
+        nombre = no;
+        tematica = te;
+        zona = zo;
     }
 
     public abstract String mostrarDetalles();
 
     // Getters y Setters
     public String getCodigo() { return codigo; }
-    public void setCodigo(String codigo) { this.codigo = codigo; }
+    public void setCodigo(String co) { codigo = co; }
 
     public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setNombre(String no) { nombre = no; }
 
     public String getTematica() { return tematica; }
-    public void setTematica(String tematica) { this.tematica = tematica; }
+    public void setTematica(String te) { tematica = te; }
 
-    public ArrayList<Ubicacion> getZonas() { return zonas; }
-    public void setZonas(ArrayList<Ubicacion> zonas) { this.zonas = zonas; }
+    public Ubicacion getZona() { return zona; }
+    public void setZona(Ubicacion zo) { zona = zo; }
 }
