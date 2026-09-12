@@ -54,14 +54,27 @@ public class CreadorTickets
         {
             ubicacionVenta = evento.getZonas().get(0);
         }
-
-        System.out.print("Ingrese un código de reserva para este ticket: ");
-        String codReserva = lector.readLine();
+        
+        System.out.print("Ingrese código de descuento (si no tiene un código presione Enter para saltar): ");
+        String cupon = lector.readLine();
 
         try
         {
-            Ticket nuevoTicket = gestor.venderTicket(codReserva, asistente, evento, ubicacionVenta);
-            System.out.println("¡Venta exitosa! El costo final es: $" + nuevoTicket.getCostoFinal());
+            Ticket nuevoTicket;
+            
+            if (cupon.isEmpty())
+            {
+                nuevoTicket = gestor.venderTicket(asistente, evento, ubicacionVenta);
+            }
+            else
+            {
+                nuevoTicket = gestor.venderTicket(asistente, evento, ubicacionVenta, cupon);
+            }
+            
+            System.out.println("\n--- COMPROBANTE DE VENTA ---");
+            System.out.println("¡Venta exitosa para " + nuevoTicket.getAsistente().getNombre() + "!");
+            System.out.println("El costo final a pagar es: $" + nuevoTicket.getCostoFinal());
+            
         }
         catch (excepciones.EdadInsuficienteException e)
         {

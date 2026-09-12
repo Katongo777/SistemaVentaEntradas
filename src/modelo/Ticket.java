@@ -1,5 +1,7 @@
 package modelo;
 
+import java.util.UUID;
+
 public class Ticket
 {
     private String codigoTicket;
@@ -8,14 +10,39 @@ public class Ticket
     private Ubicacion ubicacion;
     private double costoFinal;
 
-    public Ticket(String coRe, Usuario co, Evento ev, Ubicacion ub)
+    public Ticket(Usuario co, Evento ev, Ubicacion ub)
     {
-        codigoTicket = coRe;
+        codigoTicket = "TKT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         comprador= co;
         evento = ev;
         ubicacion = ub;
-        costoFinal = ubicacion.getPrecioBase(); 
-        // NOTA:  Falta hacer la logica de poner precios distintos según condiciones;
+    }
+    
+    public void calcularCostoFinal()
+    {
+        double precioBase = ubicacion.getPrecioBase();
+        
+        // Si el asistente tiene 65 años o más, 15% de descuento
+        if (comprador.getEdad() >= 65)
+        {
+            costoFinal = precioBase * 0.85; 
+        }
+        else
+        {
+            costoFinal = precioBase;
+        }
+    }
+
+    public void calcularCostoFinal(String codigoDescuento)
+    {
+        calcularCostoFinal(); 
+        
+        if (codigoDescuento.equalsIgnoreCase("COMPLETOSIBC"))
+        {
+            costoFinal = costoFinal * 0.50;
+        } else {
+            System.out.println("Cupón inválido. No se aplica descuento.");
+        }
     }
 
     // Getters y Setters
