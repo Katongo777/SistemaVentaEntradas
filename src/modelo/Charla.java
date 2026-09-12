@@ -4,9 +4,9 @@ public class Charla extends Evento
 {
     private String expositorPrincipal;
 
-    public Charla(String codigo, String nombre, String tematica, String exPo, Ubicacion zona)
+    public Charla(String codigo, String nombre, String tematica, String exPo)
     {
-        super(codigo, nombre, tematica, zona);
+        super(codigo, nombre, tematica);
         expositorPrincipal = exPo;
     }
 

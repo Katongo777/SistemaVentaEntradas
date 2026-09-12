@@ -1,21 +1,28 @@
 package modelo;
 
+import java.util.ArrayList;
+
 public abstract class Evento
 {
     private String codigo;
     private String nombre;
     private String tematica;
-    private Ubicacion zona;
+    private ArrayList<Ubicacion> zonas;
 
-    public Evento(String co, String no, String te, Ubicacion zo)
+    public Evento(String co, String no, String te)
     {
         codigo = co;
         nombre = no;
         tematica = te;
-        zona = zo;
+        zonas =  new ArrayList<>();
     }
 
     public abstract String mostrarDetalles();
+    
+    public void agregarUbicacion(Ubicacion ub)
+    {
+        zonas.add(ub);
+    }
 
     // Getters y Setters
     public String getCodigo() { return codigo; }
@@ -27,6 +34,6 @@ public abstract class Evento
     public String getTematica() { return tematica; }
     public void setTematica(String te) { tematica = te; }
 
-    public Ubicacion getZona() { return zona; }
-    public void setZona(Ubicacion zo) { zona = zo; }
+    public ArrayList<Ubicacion> getZonas() { return zonas; }
+    public void setZonas(ArrayList<Ubicacion> zo) { zonas = zo; }
 }

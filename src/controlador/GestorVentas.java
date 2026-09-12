@@ -47,11 +47,9 @@ public class GestorVentas
         return coincidencias;
     }
 
-    public Ticket venderTicket(String codigoTicket, Usuario comprador, Evento evento) 
+    public Ticket venderTicket(String codigoTicket, Usuario comprador, Evento evento, Ubicacion zona) 
             throws StockAgotadoException, EdadInsuficienteException
-    {
-        Ubicacion zona = evento.getZona();
-        
+    {   
         if (!zona.hayStock())
         {
             throw new StockAgotadoException("Venta fallida: La zona " + zona.getNombreZona()+ " del evento '" + evento.getNombre() + " está agotada.");
@@ -64,7 +62,7 @@ public class GestorVentas
 
         zona.setAsientosVendidos(zona.getAsientosVendidos() + 1);
 
-        Ticket nuevoTicket = new Ticket(codigoTicket, comprador, evento);
+        Ticket nuevoTicket = new Ticket(codigoTicket, comprador, evento, zona);
         
         ticketsHistorialLi.add(nuevoTicket);
 
