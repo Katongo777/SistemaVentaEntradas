@@ -8,8 +8,16 @@ import modelo.Seminario;
 import excepciones.StockAgotadoException;
 import excepciones.EdadInsuficienteException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.List;
+
+/*
+    Centraliza el almacenamiento en memoria (HashMap y ArrayList) y procesa
+    la lógica de negocio para la venta, asegurando el encapsulamiento, stock y edad
+*/
 
 public class GestorVentas
 {
@@ -47,10 +55,10 @@ public class GestorVentas
         return coincidencias;
     }
 
+    // Venta estándar
     public Ticket venderTicket(Usuario comprador, Evento evento, Ubicacion zona) 
             throws StockAgotadoException, EdadInsuficienteException
     {
-            
         if (!zona.hayStock())
         {
             throw new StockAgotadoException("Venta fallida: La zona " + zona.getNombreZona()+ " está agotada.");
@@ -68,11 +76,10 @@ public class GestorVentas
         return nuevoTicket;
     }
 
-    // VENDER CON CUPON (METODO SOBRECARGADO)
+    // Venta sobrecargada (con cupón)
     public Ticket venderTicket(Usuario comprador, Evento evento, Ubicacion zona, String cupon) 
             throws StockAgotadoException, EdadInsuficienteException
     {
-            
         if (!zona.hayStock())
         {
             throw new StockAgotadoException("Venta fallida: La zona " + zona.getNombreZona()+ " está agotada.");
@@ -90,6 +97,22 @@ public class GestorVentas
         return nuevoTicket;
     }
 
-    public HashMap<String, Evento> getMapaEventos() { return eventosMa; }
-    public ArrayList<Ticket> getHistorialVentas() { return ticketsHistorialLi; }
+    /*
+        Retorna una vista inmodificable del mapa de eventos para prevenir que 
+        clases externas modifiquen el catálogo directamente
+    */
+    public Map<String, Evento> getMapaEventos()
+    { 
+        return Collections.unmodifiableMap(eventosMa);
+    }
+    
+    /*
+        Retorna una vista inmodificable del historial de tickets, protegiendo el
+        registro de ventas
+    */
+    public List<Ticket> getHistorialVentas()
+    {
+        return Collections.unmodifiableList(ticketsHistorialLi);
+    
+    }
 }
