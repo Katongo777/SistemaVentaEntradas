@@ -8,6 +8,12 @@ import modelo.Ticket;
 import modelo.Ubicacion;
 import modelo.Usuario;
 
+/*
+    Administra el flujo de interacción para la venta de entradas. Solicita los datos del usuario, verifica posibles
+    descuentos, valida que las edades entrantes sean coherentes y maneja excepciones de negocio lanzadas
+    por el Controlador
+*/
+
 public class CreadorTickets
 {
     
@@ -37,8 +43,29 @@ public class CreadorTickets
         String nombre = lector.readLine();
         System.out.print("Rut: ");
         String rut = lector.readLine();
-        System.out.print("Edad: ");
-        int edad = Integer.parseInt(lector.readLine());
+        
+        // Bloque de validación: Evita que el programa colapse si se ingresa texto
+        int edad= 0;
+        while (true)
+        {
+            try
+            {
+                System.out.print("Edad: ");
+                edad = Integer.parseInt(lector.readLine());
+                if (edad < 0)
+                {
+                    System.out.println("¡ERROR: Edad negativa! Intente de nuevo...");
+                    continue;
+                }
+                // Entrada válida, salimos del ciclo
+                break;
+            }
+            catch (NumberFormatException e)
+            {
+                System.out.println("¡ERROR: No se ingresó un número! Intente de nuevo...");
+            }
+        }
+        
         System.out.print("Área de interés: ");
         String interes = lector.readLine();
         
@@ -58,10 +85,12 @@ public class CreadorTickets
         System.out.print("Ingrese código de descuento (si no tiene un código presione Enter para saltar): ");
         String cupon = lector.readLine();
 
+        // Bloque transaccional: Intenta concretar la venta y captura los errores lógicos del negocio
         try
         {
             Ticket nuevoTicket;
             
+            // Sobrecarga según el ingreso del cupón
             if (cupon.isEmpty())
             {
                 nuevoTicket = gestor.venderTicket(asistente, evento, ubicacionVenta);
