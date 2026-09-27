@@ -2,21 +2,31 @@ package vista;
 
 import java.io.*;
 import controlador.GestorVentas;
+import controlador.ManejadorArchivos;
 import modelo.Evento;
 import modelo.Ticket;
+
+/*
+    Mantiene el ciclo de ejecución activo, captura las opciones del usuario para delegar las operaciones
+    de entrada/salida a los submódulos correspondientes
+*/
 
 public class VistaConsola
 {
     
     private GestorVentas gestor;
     private BufferedReader lector;
-
+    
     public VistaConsola(GestorVentas ge)
     {
         gestor = ge;
         lector  = new BufferedReader( new InputStreamReader( System.in ) );
     }
 
+    /*
+        Contiene el menú interactivo y la captura errores de formato para evitar
+        que el sistema colapse
+    */
     public void iniciar() throws IOException
     {
         int opcion = -1;
@@ -45,9 +55,10 @@ public class VistaConsola
             catch (NumberFormatException e)
             {
                 System.out.println("Por favor, ingrese un número válido...");
-                continue;
+                continue; // Reinicia el ciclo sin romper el programa
             }
-
+            
+            // Enrutador, delega las tareas a los submódulos correspondientes
             switch (opcion)
             {
                 case 1:
@@ -76,7 +87,13 @@ public class VistaConsola
                     borrador.eliminar();
                     break;
                 case 0:
-                    // Falta logica de manejador de archivos
+                    /*
+                        Guarda el estado actual de los datos en la memoria local (disco duro) 
+                        antes de cerrar el programa
+                    */
+                    System.out.println("Guardando datos...");
+                    ManejadorArchivos.guardarEventosBatch(gestor.getMapaEventos());
+                    System.out.println("Saliendo del sistema... ¡Hasta pronto!");                        
                     break;
                 default:
                     System.out.println("Opción no válida.");
@@ -84,6 +101,7 @@ public class VistaConsola
         }
     }
 
+    // Extrae el catálogo (inmodificable) para imprimir los detalles de cada evento
     private void mostrarEventos()
     {
         System.out.println("\n--- LISTADO DE EVENTOS ---");
@@ -99,6 +117,7 @@ public class VistaConsola
         }
     }
 
+    // Solicida el identificador y consulta por el objeto
     private void buscarEvento() throws IOException
     {
         System.out.print("Ingrese el código del evento a buscar: ");
@@ -115,6 +134,7 @@ public class VistaConsola
         }
     }
         
+    // Recorre el historial de transacciones y imprime por pantalla un reporte de ventas 
     private void mostrarTickets()
     {
         System.out.println("\n--- LISTADO DE TICKETS VENDIDOS ---");

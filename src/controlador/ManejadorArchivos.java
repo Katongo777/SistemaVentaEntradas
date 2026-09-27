@@ -5,44 +5,56 @@ import modelo.Charla;
 import modelo.Seminario;
 import modelo.Ubicacion;
 import java.io.*;
-import java.util.HashMap;
+import java.util.Map;
+
+/*
+    Se encarga de la persistencia de los datos. Carga los datos desde 
+    un archivo CSV al iniciar el programa y sobreescribe el archivo con 
+    los datos actualizados al cerrar el programa
+*/
 
 public class ManejadorArchivos
 {
-    
-    // Archivo donde se guardará la información
+    // Ruta constante del archivo donde se guardará la información localmente
     private static final String ARCHIVO_EVENTOS = "eventos.csv";
 
+    /*
+        Lee el archivo CSV y reconstruye los objetos Evento, inyectandolos
+        al GestorVentas en la memoria. Si no existe un archivo previo inyecta 
+        datos por defecto
+    */
     public static void cargarEventos(GestorVentas gestor)
     {
         File archivo = new File(ARCHIVO_EVENTOS);
         
-        // Si el archivo no existe
+        // Bloque de inyección de datos base
         if (!archivo.exists())
         {
             System.out.println("No se encontró historial previo. Cargando datos iniciales por defecto...");
             
             // Evento 1 (CHARLA)
-            Charla charlaInicial = new Charla("EV-01", "Introducción a la Ciberseguridad", "Tecnología", "Alan Turing");
+            Charla charlaInicial = new Charla("CH-01", "Introducción a la Ciberseguridad", "Tecnología", "Alan Turing");
             charlaInicial.agregarUbicacion(new Ubicacion("General", 50, 5000.0));
             gestor.agregarEvento(charlaInicial);
             
             // Evento 2 (SEMINARIO)
-            Seminario seminarioInicial = new Seminario("EV-02", "Gestión de Proyectos Ágiles", "Negocios", 3);
+            Seminario seminarioInicial = new Seminario("SE-02", "Gestión de Proyectos Ágiles", "Negocios", 3);
             seminarioInicial.agregarUbicacion(new Ubicacion("General", 30, 15000.0));
             gestor.agregarEvento(seminarioInicial);
             
             return;
         }
 
-        // Lectura y construcción
+        // Deserialización usando try-with-resources para cerrar el programa
         try (BufferedReader lector = new BufferedReader(new FileReader(archivo)))
         {
             String linea;
             while ((linea = lector.readLine()) != null)
             {
                 String[] datos = linea.split(",");
-                if (datos.length < 7) continue; // Saltamos líneas mal formadas
+                
+                // Evita líneas mal formadas
+                if (datos.length < 7) continue;
                 
                 String tipo = datos[0];
                 String codigo = datos[1];
@@ -64,6 +76,7 @@ public class ManejadorArchivos
                     eventoReconstruido = new Seminario(codigo, nombre, tematica, duracion);
                 }
                 
+                // Si la reconstrucción fue exitosa, se le añade su ubicación anidada y se guarda
                 if (eventoReconstruido != null)
                 {
                     eventoReconstruido.agregarUbicacion(new Ubicacion("General", capacidad, precio));
@@ -78,14 +91,18 @@ public class ManejadorArchivos
         }
     }
 
-    public static void guardarEventosBatch(HashMap<String, Evento> mapaEventos)
+    /*
+        Extrae los datos del catálogo desde GestorVentas y los guarda en el archivo CSV
+    */
+    
+    public static void guardarEventosBatch(Map<String, Evento> mapaEventos)
     {
-        // Cierra el archivo al terminar
+        // try-with-resources asegura la liberación de la memoria aunque ocurra un error
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(ARCHIVO_EVENTOS)))
         {
             for (Evento e : mapaEventos.values())
             {
-                // Revisamos si es Charla o Seminario
+                // Se identifica si la subclase es Charla o Seminario para extrar su atributo único
                 String tipo = e.getClass().getSimpleName(); 
                 String atributoExtra = "";
                 
@@ -98,7 +115,7 @@ public class ManejadorArchivos
                     atributoExtra = String.valueOf(((Seminario) e).getDuracionDias());
                 }
                 
-                // Extraemos la ubicación
+                // Extracción de los datos de la primera zona
                 int capacidad = 0;
                 double precio = 0.0;
                 if (!e.getZonas().isEmpty())
@@ -108,7 +125,10 @@ public class ManejadorArchivos
                     precio = u.getPrecioBase();
                 }
                 
-                // Concatenamos todo siguiendo el formato delimitado por comas
+                /*
+                     Construcción de la línea para el archivo CSV, concatenando todo siguiendo el
+                     formato CSV delimitado por comas
+                */
                 String lineaCsv = tipo + "," + e.getCodigo() + "," + e.getNombre() + "," + 
                                   e.getTematica() + "," + atributoExtra + "," + capacidad + "," + precio;
                 
