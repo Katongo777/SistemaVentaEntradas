@@ -45,6 +45,8 @@ public class VistaConsola
             System.out.println("5. Listar Tickets vendidos");
             System.out.println("6. Editar Evento");
             System.out.println("7. Eliminar Evento");
+            System.out.println("8. Agregar Zona a un Evento");
+            System.out.println("9. Listar Zonas de un Evento");
             System.out.println("0. Guardar y Salir");
             System.out.print("Seleccione una opción: ");
             
@@ -86,6 +88,14 @@ public class VistaConsola
                     EditorEventos borrador = new EditorEventos(gestor, lector);
                     borrador.eliminar();
                     break;
+                case 8:
+                    AdministradorZonas adminAgg = new AdministradorZonas(gestor, lector);
+                    adminAgg.agregarZona();
+                    break;
+                case 9:
+                    AdministradorZonas adminLis = new AdministradorZonas(gestor, lector);
+                    adminLis.listarZonas();
+                    break;
                 case 0:
                     /*
                         Guarda el estado actual de los datos en la memoria local (disco duro) 
@@ -113,7 +123,7 @@ public class VistaConsola
         
         for (Evento e : gestor.getMapaEventos().values())
         {
-            System.out.println(e.mostrarDetalles());
+            System.out.println("[ID: " + e.getCodigo() + "] " + e.mostrarDetalles());
         }
     }
 
