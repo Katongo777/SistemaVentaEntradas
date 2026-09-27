@@ -54,15 +54,14 @@ public class ManejadorArchivos
                 String[] datos = linea.split(",");
                 
                 // Evita líneas mal formadas
-                if (datos.length < 7) continue;
+                if (datos.length < 6) continue;
                 
                 String tipo = datos[0];
                 String codigo = datos[1];
                 String nombre = datos[2];
                 String tematica = datos[3];
                 String atributoExtra = datos[4];
-                int capacidad = Integer.parseInt(datos[5]);
-                double precio = Double.parseDouble(datos[6]);
+                String zonasEmpaquetadas = (datos[5]); // Ej; "General:50:5000.0|VIP:20:15000.0"
                 
                 Evento eventoReconstruido = null;
                 
@@ -79,7 +78,25 @@ public class ManejadorArchivos
                 // Si la reconstrucción fue exitosa, se le añade su ubicación anidada y se guarda
                 if (eventoReconstruido != null)
                 {
-                    eventoReconstruido.agregarUbicacion(new Ubicacion("General", capacidad, precio));
+                    // Desempaquetar las zonas usando el separador "|"
+                    if (!zonasEmpaquetadas.equals("SIN_ZONAS") && !zonasEmpaquetadas.isEmpty())
+                    {
+                        String[] arrayZonas = zonasEmpaquetadas.split("\\|"); 
+                        
+                        for (String zonaIndividual : arrayZonas)
+                        {
+                            // Separar los atributos de la zona usando ":"
+                            String[] atributosZona = zonaIndividual.split(":");
+                            if (atributosZona.length == 3)
+                            {
+                                String nombreZona = atributosZona[0];
+                                int cap = Integer.parseInt(atributosZona[1]);
+                                double precio = Double.parseDouble(atributosZona[2]);
+                                
+                                eventoReconstruido.agregarUbicacion(new Ubicacion(nombreZona, cap, precio));
+                            }
+                        }
+                    }
                     gestor.agregarEvento(eventoReconstruido);
                 }
             }
@@ -94,7 +111,6 @@ public class ManejadorArchivos
     /*
         Extrae los datos del catálogo desde GestorVentas y los guarda en el archivo CSV
     */
-    
     public static void guardarEventosBatch(Map<String, Evento> mapaEventos)
     {
         // try-with-resources asegura la liberación de la memoria aunque ocurra un error
@@ -115,22 +131,35 @@ public class ManejadorArchivos
                     atributoExtra = String.valueOf(((Seminario) e).getDuracionDias());
                 }
                 
-                // Extracción de los datos de la primera zona
-                int capacidad = 0;
-                double precio = 0.0;
-                if (!e.getZonas().isEmpty())
+                // Empaquetar todas las zonas de la colección anidada
+                StringBuilder sbZonas = new StringBuilder();
+                if (e.getZonas().isEmpty())
                 {
-                    Ubicacion u = e.getZonas().get(0);
-                    capacidad = u.getCapacidadMaxima();
-                    precio = u.getPrecioBase();
+                    sbZonas.append("SIN_ZONAS");
+                }
+                else
+                {
+                    for (int i = 0; i < e.getZonas().size(); i++)
+                    {
+                        Ubicacion u = e.getZonas().get(i);
+                        // Formato: Nombre:Capacidad:Precio
+                        sbZonas.append(u.getNombreZona()).append(":")
+                               .append(u.getCapacidadMaxima()).append(":")
+                               .append(u.getPrecioBase());
+                        
+                        // Añadir separador '|' si no es el último elemento
+                        if (i < e.getZonas().size() - 1)
+                        {
+                            sbZonas.append("|");
+                        }
+                    }
                 }
                 
                 /*
                      Construcción de la línea para el archivo CSV, concatenando todo siguiendo el
                      formato CSV delimitado por comas
-                */
-                String lineaCsv = tipo + "," + e.getCodigo() + "," + e.getNombre() + "," + 
-                                  e.getTematica() + "," + atributoExtra + "," + capacidad + "," + precio;
+                */                
+                String lineaCsv = tipo + "," + e.getCodigo() + "," + e.getNombre() + "," + e.getTematica() + "," + atributoExtra + "," + sbZonas.toString();
                 
                 bw.write(lineaCsv);
                 bw.newLine();
