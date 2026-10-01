@@ -1,5 +1,10 @@
 package modelo;
 
+/*
+    Representa a la persona que compra un ticket. Guarda sus datos básicos
+    (nombre, rut, edad y área de interés). La edad se usa para los descuentos
+    y para las validaciones de venta, y el área de interés para recomendar eventos.
+*/
 public class Usuario
 {
     private String nombre;
