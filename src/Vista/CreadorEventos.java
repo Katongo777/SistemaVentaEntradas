@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.UUID;
 import controlador.GestorVentas;
+import modelo.Categorias;
 import modelo.Evento;
 import modelo.Charla;
 import modelo.Seminario;
@@ -35,10 +36,9 @@ public class CreadorEventos
         
         System.out.print("Ingrese el nombre del evento: ");
         String nombre = lector.readLine();
-        
-        System.out.print("Ingrese la temática: ");
-        String tematica = lector.readLine();
-        
+
+        String tematica = elegirTematica();
+
         // Bloque de validación: Evita que el programa colapse si se ingresa texto
         int capacidad = 0;
         while (true)
@@ -118,5 +118,36 @@ public class CreadorEventos
         // Delegación de la persistencia en memoria al Controlador
         gestor.agregarEvento(nuevoEvento);
         System.out.println("¡Evento (" + nuevoEvento.getClass().getSimpleName() + ") agregado con éxito!");
+    }
+
+    /*
+        Muestra las temáticas disponibles numeradas y devuelve la que elija el
+        usuario. Usamos la lista fija de Categorias para que la temática siempre
+        sea una de las válidas (y así calce con la recomendación).
+    */
+    private String elegirTematica() throws IOException
+    {
+        while (true)
+        {
+            System.out.println("Seleccione la temática:");
+            for (int i = 0; i < Categorias.TEMATICAS.length; i++)
+            {
+                System.out.println("  " + (i + 1) + ". " + Categorias.TEMATICAS[i]);
+            }
+            System.out.print("Opción: ");
+            try
+            {
+                int opcion = Integer.parseInt(lector.readLine());
+                if (opcion >= 1 && opcion <= Categorias.TEMATICAS.length)
+                {
+                    return Categorias.TEMATICAS[opcion - 1];
+                }
+                System.out.println("Número fuera de rango. Intente de nuevo...");
+            }
+            catch (NumberFormatException e)
+            {
+                System.out.println("¡ERROR: No se ingresó un número! Intente de nuevo...");
+            }
+        }
     }
 }

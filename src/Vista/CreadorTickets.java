@@ -66,10 +66,8 @@ public class CreadorTickets
             }
         }
         
-        System.out.print("Área de interés: ");
-        String interes = lector.readLine();
-        
-        Usuario asistente = new Usuario(nombre, rut, edad, interes);
+        // El área de interés no se pide en la venta (va vacía); se usa en Recomendar
+        Usuario asistente = new Usuario(nombre, rut, edad, "");
 
         Ubicacion ubicacionVenta;
         if (evento.getZonas().isEmpty())
