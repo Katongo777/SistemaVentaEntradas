@@ -2,6 +2,15 @@ package modelo;
 
 import java.util.UUID;
 
+/*
+    Representa la entrada (ticket) que compra un usuario para un evento
+    en una zona (Ubicacion) específica. Guarda quién compró, a qué evento,
+    en qué zona y cuánto pagó. El código del ticket se genera solo con un
+    UUID para que sea único y no se pueda adivinar.
+
+    Aquí también está la SOBRECARGA de métodos (SIA-5): calcularCostoFinal()
+    sin cupón y calcularCostoFinal(String) con cupón de descuento.
+*/
 public class Ticket
 {
     private String codigoTicket;
@@ -33,15 +42,23 @@ public class Ticket
         }
     }
 
+    /*
+        Sobrecarga: misma idea pero aplicando además un cupón de descuento.
+        El cupón se valida contra los cupones que tiene ESTE evento; si es válido
+        se aplica su porcentaje, y si no, no se aplica descuento extra.
+    */
     public void calcularCostoFinal(String codigoDescuento)
     {
-        calcularCostoFinal(); 
-        
-        if (codigoDescuento.equalsIgnoreCase("COMPLETOSIBC"))
+        calcularCostoFinal();
+
+        double descuento = evento.getDescuentoCupon(codigoDescuento);
+        if (descuento > 0)
         {
-            costoFinal = costoFinal * 0.50;
-        } else {
-            System.out.println("Cupón inválido. No se aplica descuento.");
+            costoFinal = costoFinal * (1 - descuento);
+        }
+        else
+        {
+            System.out.println("Cupón inválido para este evento. No se aplica descuento.");
         }
     }
 

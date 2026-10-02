@@ -1,5 +1,11 @@
 package modelo;
 
+/*
+    Representa una zona o ubicación dentro de un evento (Ej: General, VIP).
+    Es el elemento de la colección ANIDADA: cada Evento tiene una lista de
+    Ubicaciones. Controla su capacidad y cuántos asientos ya se vendieron
+    para saber si todavía queda stock.
+*/
 public class Ubicacion
 {
     private String nombreZona;
