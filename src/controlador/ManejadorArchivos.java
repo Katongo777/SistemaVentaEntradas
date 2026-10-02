@@ -35,13 +35,16 @@ public class ManejadorArchivos
             // Evento 1 (CHARLA)
             Charla charlaInicial = new Charla("CH-01", "Introducción a la Ciberseguridad", "Tecnología", "Alan Turing");
             charlaInicial.agregarUbicacion(new Ubicacion("General", 50, 5000.0));
+            charlaInicial.agregarCupon("PROMO50", 0.5);   // 50% de descuento
+            charlaInicial.agregarCupon("ESTUDIANTE", 0.2); // 20% de descuento
             gestor.agregarEvento(charlaInicial);
-            
+
             // Evento 2 (SEMINARIO)
             Seminario seminarioInicial = new Seminario("SE-02", "Gestión de Proyectos Ágiles", "Negocios", 3);
             seminarioInicial.agregarUbicacion(new Ubicacion("General", 30, 15000.0));
+            seminarioInicial.agregarCupon("BIENVENIDA", 0.1); // 10% de descuento
             gestor.agregarEvento(seminarioInicial);
-            
+
             return;
         }
 
@@ -62,7 +65,9 @@ public class ManejadorArchivos
                 String tematica = datos[3];
                 String atributoExtra = datos[4];
                 String zonasEmpaquetadas = (datos[5]); // Ej; "General:50:5000.0|VIP:20:15000.0"
-                
+                // El 7mo campo (cupones) puede no existir en archivos antiguos
+                String cuponesEmpaquetados = (datos.length >= 7) ? datos[6] : "SIN_CUPONES";
+
                 Evento eventoReconstruido = null;
                 
                 if (tipo.equals("Charla"))
@@ -97,6 +102,23 @@ public class ManejadorArchivos
                             }
                         }
                     }
+
+                    // Desempaquetar los cupones (formato "CODIGO:0.5;CODIGO2:0.2")
+                    if (!cuponesEmpaquetados.equals("SIN_CUPONES") && !cuponesEmpaquetados.isEmpty())
+                    {
+                        String[] arrayCupones = cuponesEmpaquetados.split(";");
+                        for (String cuponIndividual : arrayCupones)
+                        {
+                            String[] partes = cuponIndividual.split(":");
+                            if (partes.length == 2)
+                            {
+                                String codigoCupon = partes[0];
+                                double descuento = Double.parseDouble(partes[1]);
+                                eventoReconstruido.agregarCupon(codigoCupon, descuento);
+                            }
+                        }
+                    }
+
                     gestor.agregarEvento(eventoReconstruido);
                 }
             }
@@ -155,11 +177,31 @@ public class ManejadorArchivos
                     }
                 }
                 
+                // Empaquetar los cupones del evento (formato "CODIGO:0.5;CODIGO2:0.2")
+                StringBuilder sbCupones = new StringBuilder();
+                if (e.getCupones().isEmpty())
+                {
+                    sbCupones.append("SIN_CUPONES");
+                }
+                else
+                {
+                    boolean primero = true;
+                    for (Map.Entry<String, Double> cupon : e.getCupones().entrySet())
+                    {
+                        if (!primero)
+                        {
+                            sbCupones.append(";");
+                        }
+                        sbCupones.append(cupon.getKey()).append(":").append(cupon.getValue());
+                        primero = false;
+                    }
+                }
+
                 /*
                      Construcción de la línea para el archivo CSV, concatenando todo siguiendo el
                      formato CSV delimitado por comas
-                */                
-                String lineaCsv = tipo + "," + e.getCodigo() + "," + e.getNombre() + "," + e.getTematica() + "," + atributoExtra + "," + sbZonas.toString();
+                */
+                String lineaCsv = tipo + "," + e.getCodigo() + "," + e.getNombre() + "," + e.getTematica() + "," + atributoExtra + "," + sbZonas.toString() + "," + sbCupones.toString();
                 
                 bw.write(lineaCsv);
                 bw.newLine();

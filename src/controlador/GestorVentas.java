@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
+import java.text.Normalizer;
 
 /*
     Centraliza el almacenamiento en memoria (HashMap y ArrayList) y procesa
@@ -46,13 +47,55 @@ public class GestorVentas
         return eventosMa.get(codigo);
     }
 
+    /*
+        Funcionalidad propia del negocio (SIA-9): a partir de un usuario devuelve
+        un subconjunto FILTRADO del catálogo con los eventos que le podrían interesar.
+        Criterio:
+          - La temática del evento coincide con el área de interés del usuario
+            (comparación sin distinguir mayúsculas y por coincidencia parcial).
+          - Si el usuario es menor de 18 años se descartan los Seminarios,
+            porque en la venta esos eventos exigen ser mayor de edad.
+        No modifica el catálogo, solo arma una lista nueva con las coincidencias.
+    */
     public ArrayList<Evento> eventosSugeridos(Usuario comprador)
     {
         ArrayList<Evento> coincidencias = new ArrayList<>();
-        
-        // FALTA CONSTRUIR EL ALGORITMO PARA LAS SUGERENCIAS SEGÚN LA TEMATICA Y/O EDAD
-            
+
+        String interes = comprador.getAreaInteres();
+        if (interes == null)
+        {
+            return coincidencias;
+        }
+        // Normalizamos para comparar sin tildes ni mayúsculas (ej: "Tecnologia" == "Tecnología")
+        interes = normalizar(interes);
+
+        for (Evento evento : eventosMa.values())
+        {
+            // Regla de edad: los menores no ven Seminarios
+            if (evento instanceof Seminario && comprador.getEdad() < 18)
+            {
+                continue;
+            }
+
+            String tematica = normalizar(evento.getTematica());
+            if (tematica.contains(interes) || interes.contains(tematica))
+            {
+                coincidencias.add(evento);
+            }
+        }
+
         return coincidencias;
+    }
+
+    /*
+        Deja un texto en minúsculas y sin tildes para poder compararlo de forma
+        más flexible (así "Tecnología", "tecnologia" y "TECNOLOGIA" se consideran iguales).
+    */
+    private String normalizar(String texto)
+    {
+        String sinTildes = Normalizer.normalize(texto, Normalizer.Form.NFD)
+                                     .replaceAll("\\p{M}", "");
+        return sinTildes.trim().toLowerCase();
     }
 
     // Venta estándar
