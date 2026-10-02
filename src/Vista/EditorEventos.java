@@ -5,6 +5,11 @@ import java.io.IOException;
 import controlador.GestorVentas;
 import modelo.Evento;
 
+/*
+    Se encarga de editar y eliminar eventos de la colección principal desde
+    la consola. Pide el código del evento y, si existe, permite cambiar sus
+    datos o borrarlo. (Parte de SIA-8 para la colección principal)
+*/
 public class EditorEventos
 {
     
