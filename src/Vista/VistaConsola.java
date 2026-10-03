@@ -1,10 +1,13 @@
 package vista;
 
 import java.io.*;
+import java.util.ArrayList;
 import controlador.GestorVentas;
 import controlador.ManejadorArchivos;
+import modelo.Categorias;
 import modelo.Evento;
 import modelo.Ticket;
+import modelo.Usuario;
 
 /*
     Mantiene el ciclo de ejecución activo, captura las opciones del usuario para delegar las operaciones
@@ -17,10 +20,15 @@ public class VistaConsola
     private GestorVentas gestor;
     private BufferedReader lector;
     
-    public VistaConsola(GestorVentas ge)
+    /*
+        Recibimos el mismo BufferedReader que ya usa Principal en vez de crear
+        uno nuevo. Si creáramos otro sobre System.in, ambos lectores se pelean
+        el buffer de entrada y la aplicación puede quedarse sin leer bien los datos.
+    */
+    public VistaConsola(GestorVentas ge, BufferedReader le)
     {
         gestor = ge;
-        lector  = new BufferedReader( new InputStreamReader( System.in ) );
+        lector = le;
     }
 
     /*
@@ -38,21 +46,39 @@ public class VistaConsola
         while (opcion != 0)
         {
             System.out.println("\n--- MENÚ PRINCIPAL ---");
-            System.out.println("1. Agregar Evento");
-            System.out.println("2. Lista de Eventos");
-            System.out.println("3. Buscar Evento");
-            System.out.println("4. Comprar Ticket");
-            System.out.println("5. Listar Tickets vendidos");
-            System.out.println("6. Editar Evento");
-            System.out.println("7. Eliminar Evento");
-            System.out.println("8. Agregar Zona a un Evento");
-            System.out.println("9. Listar Zonas de un Evento");
-            System.out.println("0. Guardar y Salir");
+            System.out.println("-- Eventos (colección principal) --");
+            System.out.println("1. Agregar evento");
+            System.out.println("2. Listar eventos");
+            System.out.println("3. Buscar evento");
+            System.out.println("4. Editar evento");
+            System.out.println("5. Eliminar evento");
+            System.out.println("-- Zonas de un evento (colección anidada) --");
+            System.out.println("6. Agregar zona a un evento");
+            System.out.println("7. Listar zonas de un evento");
+            System.out.println("8. Buscar zona en un evento");
+            System.out.println("9. Editar zona de un evento");
+            System.out.println("10. Eliminar zona de un evento");
+            System.out.println("-- Ventas y utilidades --");
+            System.out.println("11. Vender ticket");
+            System.out.println("12. Listar tickets vendidos");
+            System.out.println("13. Recomendar eventos para un usuario");
+            System.out.println("-- Cupones de un evento --");
+            System.out.println("14. Agregar cupón a un evento");
+            System.out.println("15. Listar cupones de un evento");
+            System.out.println("16. Eliminar cupón de un evento");
+            System.out.println("0. Guardar y salir");
             System.out.print("Seleccione una opción: ");
             
+            String entrada = lector.readLine();
+            if (entrada == null)
+            {
+                // Se acabó la entrada (EOF): salimos para no quedar en un bucle infinito
+                break;
+            }
+
             try
             {
-                opcion = Integer.parseInt(lector.readLine());
+                opcion = Integer.parseInt(entrada.trim());
             }
             catch (NumberFormatException e)
             {
@@ -74,27 +100,54 @@ public class VistaConsola
                     buscarEvento();
                     break;
                 case 4:
-                    CreadorTickets vendedor = new CreadorTickets(gestor, lector);
-                    vendedor.ejecutarVenta();
-                    break;
-                case 5:
-                    mostrarTickets();
-                    break;
-                case 6:
                     EditorEventos editor = new EditorEventos(gestor, lector);
                     editor.editar();
                     break;
-                case 7:
+                case 5:
                     EditorEventos borrador = new EditorEventos(gestor, lector);
                     borrador.eliminar();
                     break;
-                case 8:
+                case 6:
                     AdministradorZonas adminAgg = new AdministradorZonas(gestor, lector);
                     adminAgg.agregarZona();
                     break;
-                case 9:
+                case 7:
                     AdministradorZonas adminLis = new AdministradorZonas(gestor, lector);
                     adminLis.listarZonas();
+                    break;
+                case 8:
+                    AdministradorZonas adminBus = new AdministradorZonas(gestor, lector);
+                    adminBus.buscarZona();
+                    break;
+                case 9:
+                    AdministradorZonas adminEdi = new AdministradorZonas(gestor, lector);
+                    adminEdi.editarZona();
+                    break;
+                case 10:
+                    AdministradorZonas adminEli = new AdministradorZonas(gestor, lector);
+                    adminEli.eliminarZona();
+                    break;
+                case 11:
+                    CreadorTickets vendedor = new CreadorTickets(gestor, lector);
+                    vendedor.ejecutarVenta();
+                    break;
+                case 12:
+                    mostrarTickets();
+                    break;
+                case 13:
+                    recomendarEventos();
+                    break;
+                case 14:
+                    AdministradorCupones adminCupAgg = new AdministradorCupones(gestor, lector);
+                    adminCupAgg.agregarCupon();
+                    break;
+                case 15:
+                    AdministradorCupones adminCupLis = new AdministradorCupones(gestor, lector);
+                    adminCupLis.listarCupones();
+                    break;
+                case 16:
+                    AdministradorCupones adminCupEli = new AdministradorCupones(gestor, lector);
+                    adminCupEli.eliminarCupon();
                     break;
                 case 0:
                     /*
@@ -156,10 +209,91 @@ public class VistaConsola
         
         for (Ticket t : gestor.getHistorialVentas())
         {
-            System.out.println("Reserva: " + t.getCodigoReserva() + 
-                               " | Evento: " + t.getEvento().getNombre() + 
-                               " | Cliente: " + t.getAsistente().getNombre() + 
+            System.out.println("Reserva: " + t.getCodigoReserva() +
+                               " | Evento: " + t.getEvento().getNombre() +
+                               " | Cliente: " + t.getAsistente().getNombre() +
                                " | Costo Final: $" + t.getCostoFinal());
+        }
+    }
+
+    /*
+        Pide los datos de un usuario y le muestra los eventos recomendados
+        según su área de interés y su edad, apoyándose en el filtro que
+        vive en el controlador (GestorVentas.eventosSugeridos).
+        Es la funcionalidad propia del negocio (SIA-9).
+    */
+    private void recomendarEventos() throws IOException
+    {
+        System.out.println("\n--- RECOMENDAR EVENTOS ---");
+        System.out.print("Nombre del usuario: ");
+        String nombre = lector.readLine();
+
+        int edad = 0;
+        while (true)
+        {
+            try
+            {
+                System.out.print("Edad: ");
+                edad = Integer.parseInt(lector.readLine());
+                if (edad < 0)
+                {
+                    System.out.println("¡ERROR: Edad negativa! Intente de nuevo...");
+                    continue;
+                }
+                break;
+            }
+            catch (NumberFormatException e)
+            {
+                System.out.println("¡ERROR: No se ingresó un número! Intente de nuevo...");
+            }
+        }
+
+        String interes = elegirTematica();
+
+        // Creamos un usuario temporal solo para calcular las recomendaciones
+        Usuario usuario = new Usuario(nombre, "sin-rut", edad, interes);
+        ArrayList<Evento> sugeridos = gestor.eventosSugeridos(usuario);
+
+        if (sugeridos.isEmpty())
+        {
+            System.out.println("No encontramos eventos que coincidan con '" + interes + "' para " + nombre + ".");
+            return;
+        }
+
+        System.out.println("Eventos recomendados para " + nombre + ":");
+        for (Evento e : sugeridos)
+        {
+            System.out.println("[ID: " + e.getCodigo() + "] " + e.mostrarDetalles());
+        }
+    }
+
+    /*
+        Muestra las temáticas disponibles numeradas y devuelve la que elija el
+        usuario. Usa la lista fija Categorias para que siempre sea válida.
+    */
+    private String elegirTematica() throws IOException
+    {
+        while (true)
+        {
+            System.out.println("Seleccione la temática de interés:");
+            for (int i = 0; i < Categorias.TEMATICAS.length; i++)
+            {
+                System.out.println("  " + (i + 1) + ". " + Categorias.TEMATICAS[i]);
+            }
+            System.out.print("Opción: ");
+            try
+            {
+                int opcion = Integer.parseInt(lector.readLine());
+                if (opcion >= 1 && opcion <= Categorias.TEMATICAS.length)
+                {
+                    return Categorias.TEMATICAS[opcion - 1];
+                }
+                System.out.println("Número fuera de rango. Intente de nuevo...");
+            }
+            catch (NumberFormatException e)
+            {
+                System.out.println("¡ERROR: No se ingresó un número! Intente de nuevo...");
+            }
         }
     }
 }
